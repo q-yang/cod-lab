@@ -1,19 +1,16 @@
 # Lab Material for Computer Architecture
 
-This repository provides lab material for the 2017
-[Computer Architecture and Engineering course (02155)](http://www2.imm.dtu.dk/courses/02155/) at DTU.
-Although this lab is customized for the DTU course, it can also serve as
-introduction lab for computer architecture in general and the RISC-V
-instruction set specifically.
+This repository provides lab material for the course 
+[Computer Architecture](https://elearning.szu.edu.cn/webapps/blackboard/execute/modulepage/view?course_id=_51748_1&cmp_tab_id=_75567_1&editMode=true&mode=cpview) at SZU. 
+This lab is customized for the SZU course, which is an optional course for the
+elite class in the College of Electronics and Information Engineering.
 
-The lab is based on COD: [Computer Organization and Design RISC-V Edition](https://www.amazon.com/Computer-Organization-Design-RISC-V-Architecture/dp/0128122757):
-The Hardware Software Interface, 1st Edition,
+The lab is based on COD: [Computer Organization and Design: The Hardware Software Interface RISC-V Edition](https://www.amazon.com/Computer-Organization-Design-RISC-V-Architecture/dp/0128122757),
 by David A. Patterson (Author), John L. Hennessy (Author).
 
 To use this material you can: (1) just browse it online on GitHub,
 (2) clone the repo to have all material offline (using it also
-for your solutions),
-or (3) fork the repo (and clone locally), to be able to contribute back with changes.
+for your solutions), or (3) fork the repo (and clone locally), to be able to contribute back with changes.
 
 **Contributions:** We are happily accepting contributions in the form of
 pull requests. Even the fix of a small typo is appreciated.
@@ -21,7 +18,6 @@ pull requests. Even the fix of a small typo is appreciated.
 ## Lab Overview
 
 The following list gives an overview of all lab sessions and assignments.
-For lab sessions where no link is given, we will provide the material in CampusNet.
 
  * week 1: Number representation and performance
  * week 2: [Lab 2](lab2)
@@ -33,16 +29,9 @@ For lab sessions where no link is given, we will provide the material in CampusN
 
 ## Resources
 
-### RISC-V Simple Simulator
+### RISC-V Simulator
 
-For the first labs we will use the web based RISC-V simulator [Venus](https://kvakil.github.io/venus/).
-Venus executes in your browser and there is no need to install any tools
-on your laptop. You can also save that web page to have a local copy of
-the simulator to work when offline.
-
-### RISC-V Advanced Simulator
-
-For later labs we will use the RISCV pipeline simulator Ripes.
+In our labs we will use the RISCV pipeline simulator Ripes.
 Download it from [here](https://github.com/mortbopet/Ripes/releases).
 No installation is required, however, enable the file's execute bit to make it executable.
 

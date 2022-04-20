@@ -1,106 +1,172 @@
-# Lab Session 3
+# Lab Session 6
 
-This lab session continues to use the [Venus RISC-V simulator](https://kvakil.github.io/venus/).
+During this lab session you will install and explore the official RISC-V tools. You will also be exploring [Ripes](https://github.com/mortbopet/ripes), a graphical RISC-V simulator.
 
+## RISC-V C Compiler and Ripes
 
-### Making Decisions
+In this lab you will explore the full RISC-V toolchain, including a port of `gcc`,
+and the RISC-V simulator Ripes.
 
-Last week you used the `ecall` number 4 to print a string. However, this
-abstracts already some functionality in a form of operating system.
-Assume that you have just a device where you can print out single characters
-(such as a serial device). Use you last Hello World example and print
-your individual character with `ecall` number 11 (see
-[env. calls](https://github.com/kvakil/venus/wiki/Environmental-Calls)).
+Follow the instructions for installing the tools [here](https://github.com/schoeberl/cae-lab#risc-v-tools)
 
-For this exercise you need branches to form a loop and to loop through
-the characters and make a decision when to exit the loop (at the end of
-the string). How do you know about the end of the string?
-Hint: lookup what `.asciiz` means in the [Venus documentation](https://github.com/kvakil/venus/wiki)
-
-### Simple Integer Arithmetic
-
-You will now explore how the computer can perform integer arithmetic operations.
-In the computer memory, both data and code are represented as numbers.
-The CPU has no way of knowing which numbers are data and which are instructions.
-It is just trying to execute whatever instruction the program counter (PC) is pointing at.
-To solve this problem, data and code are stored separately in different memory areas called code segment and data segment.
-If you want to save something as data, then you have to put the `.data` directive before that line in your assembly code.
-If you want to save something as code, then you have to use the `.text` directive.
-
-
-Use following code [add.s](add.s):
-
-```asm
-.data
-aa: .word 5
-bb: .word 7
-.text
-main:
-lw x1, aa
-lw x2, bb
-add x3, x1, x2
+Note that the name of the compiler and tools depends on whether you're on Linux or macOS/Windows, and whether you're using the prebuilt binaries or you compiled the toolchain from source yourself. If you compiled the toolchain yourself under Linux or WSL, you need to use 
 ```
+riscv64-linux-gnu-<tool>
+```
+whereas if you're running on macOS or using the prebuilt binaries, you should use
+```
+riscv64-unknown-elf-<tool>
+```
+where `<tool>` is the specific tool that you wish to use (`gcc`, `objdump`, `objcopy` etc). 
 
-See how the code and the data are saved in the Text  and Data segment.
-Run the example step by step. Observe what real instructions are executed.
-The instruction `lw x1, aa` is not a native RISC-V instruction.
-It is an assembler pseudo instruction that makes assembler programmers
-live easier. Find out what the `auipc` instruction does.
+In all examples below, `riscv64-linux-gnu` is used. Replace the correct sections of all commands if you're using the `riscv64-unknown-elf` versions.
 
-### Calling Functions
+## Basic Linux/Unix Skills
 
-Now that you implemented an addition you find this is a very great thing
-and want to wrap it into a function. Implement a leaf function that performs
-addition and call it from your main program with the parameters in the
-correct argument register. Take care that you use the right registers
-according to the calling conventions of RISC-V. If you use saved registers
-save them on the stack.
+If you have never used Linux/Unix and a command line it is now a good time
+to start to learn how to drive a computer from the terminal/command line.
 
-Note that the syntax of the `jalr` instruction for returning from a function
-in Venus is a little bit different: `jalr x0, x1, 0`
+First you have to open a terminal, which gives you a shell to work with.
 
+Here some of the basic commands at the command line:
 
-### A Non-Leaf Function
+`ls`, `cd`, `cp`, `mv`, `mkdir`
 
-Non-leaf functions need to perform a little bit more work on function entry
-and return.
-You will explore a non-leaf function by implementing the factorial function
-as a recursive function in RISC-V assembly.
+Find out what those commands do (Google is your friend).
 
-See the following code for factorial in C:
+You also need an editor, `gedit` is one of the easier ones to use.
 
+For further Unix/Linux learning you can use following free book:
+[Ten Steps to Linux Survival](http://www.oreilly.com/programming/free/files/ten-steps-to-linux-survival.pdf)
+
+## Exploring Compiled C Code
+
+We will now explore very small C functions, such as
 
 ```C
-int fact (int n)
-{ 
-  if (n < 1) return 1;
-  else return n * fact(n - 1);
+int foo(int a, int b) {
+  return a + b;
+}
+```
+Copy the above into a new file, and save it as `foo.c`. Then compile it with the RISC-V compiler using the below command.
+```bash
+riscv64-linux-gnu-gcc -march=rv32i -mabi=ilp32 -S foo.c -o foo.s
+```
+This generates a file named `foo.s` containing the corresponding assembly for your C program. Explore the assembler output in `foo.s`.
+
+Are you surprised about the many instructions generated?
+Without specifying an *optimization level* a compiler does a direct translation of your code including calling conventions and allocation of all variables in stack slots.
+
+Try to optimize it by passing the option `-O2` and seeing the difference when the compiler is allowed to optimize your code.
+
+## Compiling to an executable
+
+To compile to an executable (an ELF file) the C program needs to contain
+a `main` function. We will now explore the following simple program, saved into a file named `main.c`.
+
+```C
+int main() {
+
+  int a = 1;
+  int b = 2;
+
+  return a+b;
 }
 ```
 
-Use following template [fact.s](fact.s) as a starting point and substitute
-the instruction `li a0, 15 # dummy return value` by your implementation of
-factorial.
-
-```asm
-.data
-n: .word 3
-
-.text
-main:
-la t0, n
-lw a0, 0(t0)
-jal ra, factorial
-   
-addi a1, a0, 0
-addi a0, x0, 1
-ecall # print pesult
-
-addi a0, x0, 10
-ecall # exit
-
-factorial:
-# put your solution here
-li a0, 15 # dummy return value
-jalr x0,0(x1) # return
+Compile it with
+```bash
+riscv64-linux-gnu-gcc main.c -o main.out
 ```
+This creates the executable file `main.out`.
+
+Remember that you can always compile a program into an assembly file with the `-S` option.
+Another option to explore a compiled program is with an object dump:
+```bash
+riscv64-linux-gnu-objdump -d main.out
+```
+This will give you a long output as a lot of library code is linked
+into the final program. To make it easier to navigate the output, you can use the operator `>` to redirect the output into a file.
+```bash
+riscv64-linux-gnu-objdump -d main.out > dump.txt
+```
+
+Open this file with an editor (e.g., `gedit dump.txt`) and try to find the `main` function.
+
+## Using Ripes
+Ripes is a graphical RISC-V simulator, allowing you to see how values are passed between the submodules of the processor. When you open Ripes, you are presented with the "Processor" tab. Click the "chip" icon in the upper-left corner and ensure that the currently selected version of the processor is `RISC-V -> 32-bit -> Single cycle processor`.
+
+Navigate to the "Editor" tab and input a simple RISC-V assembly program
+```asm
+li t0, 5
+li t1, 7
+li a7, x //You must decide the value of X
+add a0, t0, t1
+ecall
+```
+For the above program to run correctly, you must select the value to load into a7. Check [this page](https://github.com/mortbopet/Ripes/wiki/Environment-calls) for a list of the supported environment calls in Ripes. Note that these are not the same as in Venus!
+
+Go back to the Processor tab and run the program, either by stepping through it `>`, or by running all instructions `>>`.
+What is happening? Do you see the output in the console?
+
+### Using Ripes to execute a program
+Ripes also supports executing a program compiled with the RISC-V compiler, either from an ELF file
+or as a flat binary. The latter format is what you will use for your final project.
+
+Create a `hello.c` file containing the following code:
+```C
+asm("li sp, 0x100000"); // SP set to 1 MB
+asm("jal main");        // call main
+asm("li a7, 10");       // prepare ecall exit
+asm("ecall");           // now your simulator should stop
+void prints(volatile char* ptr);
+
+void main() {
+  char* str = "Hello world";
+  prints(str);
+}
+
+void prints(volatile char* ptr){ // ptr is passed through register a0
+  asm("li a7, x"); //You must decide the value of x
+  asm("ecall");
+}
+```
+Compile it by executing
+```bash
+riscv64-linux-gnu-gcc -nostartfiles -nostdlib -march=rv32i -mabi=ilp32 -T $HOME/linker.ld hello.c -o hello.out
+```
+and then extract the program by executing
+```bash
+riscv64-linux-gnu-objcopy -O binary hello.out hello.bin
+```
+Now load the program in Ripes as a `Flat binary`. Note, that there are a lot of unknown instructions
+listed in the Editor window. These may be strings, constants and comments from the ELF file.
+Run the program and notice how `Hello world` is printed in the console. Also notice how the program
+never executes any of the strings, simply based on the execution flow.
+
+Take your `factorial` program from Lab 3, and adapt it to print the result of the `factorial` subroutine every time it is finished. Remember to use the correct environment calls to run it on Ripes. 
+
+## Using the Assembler
+
+For the final project (your RISC-V instruction set simulator) it will be convenient to
+use an assembler (or even some C code) to write your test cases.
+
+As an example compile your function `foo.s` to an object file with
+```bash
+riscv64-linux-gnu-gcc -march=rv32i -mabi=ilp32 -c foo.s -o foo.o
+```
+You can explore this object file (`foo.o`) with `objdump` to get
+the instructions in hexadecimal display.
+```
+riscv64-linux-gnu-objdump -d foo.o
+```
+
+However, what you really interested in is the `.text` segment part
+of the ELF file. With `objcopy` you can extract that part.
+```bash
+riscv64-linux-gnu-objcopy -O binary foo.o output.bin
+```
+which generates a file `output.bin` containing the RISC-V instructions
+in plain binary. You can display a binary file with `hexdump -C output.bin`
+or `xxd output.bin`.
+Do you recognize the instructions shown in the hexdump?
