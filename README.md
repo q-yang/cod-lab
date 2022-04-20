@@ -19,13 +19,11 @@ pull requests. Even the fix of a small typo is appreciated.
 
 The following list gives an overview of all lab sessions and assignments.
 
- * week 1: Number representation and performance
- * week 2: [Lab 2](lab2)
- * week 3: [Lab 3](lab3)
- * week 4: paper and pencil
- * week 5: assignment
- * week 6: [Lab 6](lab6)
- * week 7: [Lab 7](lab7)
+
+ * L01: [Lab 1](lab1)
+ * L02: [Lab 2](lab2)
+ * L03: [Lab 3](lab3)
+ * L04: [Lab 4](lab4)
 
 ## Resources
 
@@ -34,6 +32,9 @@ The following list gives an overview of all lab sessions and assignments.
 In our labs we will use the RISCV pipeline simulator Ripes.
 Download it from [here](https://github.com/mortbopet/Ripes/releases).
 No installation is required, however, enable the file's execute bit to make it executable.
+<p align="center">
+    <img src="./ripes_doc/resources/images/animation.gif?raw=true" />
+</p>
 
 ### RISC-V Tools
 

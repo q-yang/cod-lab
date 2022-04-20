@@ -1,9 +1,17 @@
-#
-# Use ecall to print out a number
-#  = poor man's debugger
-#
+# Use ecall to print
+# = poor man's debugger
 
-addi a0, zero, 1  # function for integer print
-addi a1, zero, 42 # the integer value to print
-ecall             # call the environment for printing
+.data
+str: .string "hello, world!"
 
+.text
+li a0, 42
+li a7, 1
+ecall     # prints "42" to console
+
+li a7, 11
+ecall     # prints "*" to console (ASCII(42) = '*')
+
+la a0, str
+li a7, 4
+ecall     # Prints "hello, world!" to console

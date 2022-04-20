@@ -10,7 +10,7 @@ instructions (RV32I).
 You will be able to simulate small to medium size programs on a RISC-V
 instruction set simulator.
 
-### Usage of the Ripes
+## Usage of the Ripes
 
 First of all, please download the latest version of the Ripes simulator from 
 [Ripes Release Page](https://github.com/mortbopet/Ripes/releases) and make it work correctly.
@@ -24,7 +24,7 @@ Ripes may be used to explore concepts such as:
 Before you start, go through the [Ripes Introduction](../ripes_doc/introduction.md) to learn the basic operation of this powerful simulator.
 
 
-### A Minimal Assembler Program
+## A Minimal Assembler Program
 #### (And How to Start Everything Off with Loading Constants)
 
 Start by pasting following [minimal.s](./minimal.s) assembler program into Ripes,
@@ -42,6 +42,7 @@ into registers. Loading immediate values is so basic to get a program started
 that RISC-V defines a pseudo instruction, `li`, as a shortcut.
 Enter following code into the editor and switch to the simulation pane.  
 ```asm
+# minimal.s
 # Use of pseudo instructions to load immediate values
 li x1, 2
 li x2, 3
@@ -58,22 +59,8 @@ Lookup the `lui` instruction in the [The RISC-V Instruction Set Manual](https://
 
 Why is immediate loading so fundamental?
 
-### Step, Breakpoint, and Run
 
-Extend you program with a handful of more instructions to
-explore the functions of the Venus simulator.
-You can clear the registers and the program counter by pressing _Reset_.
-Step through your program with _Step_ or run you program to completion
-with _Run_.
-
-Another important concept is a breakpoint. You can set a breakpoint by
-clicking into the instruction. A breakpoint is marked by coloring it red.
-Another click into the instruction will clear the breakpoint.
-
-With a breakpoint you can _Run_ he program until it reaches the breakpoint.
-There you might explore some values in the registers.
-
-### Computing with ALU Instructions
+## Computing with ALU Instructions
 
 A computer can compute. "Of course!", you will say.
 However, how do you compute on a RISC processor?
@@ -85,22 +72,19 @@ the result is put into a register as well.
 Locate all integer ALU instructions of RISC-V and explore them in the
 simulator.
 
-### Interlude: Talking to the World
+## Environment Calls: Talking to the World
 
-Venus contains a simulation of low level operating system functions.
-The functions in Venus have been inspired by the MIPS simulator MARS,
-which itself has been inspired by SPIM.
-
-System functions in RISC-V are invoked with the `ecall` instruction,
+Ripes contains a simulation of low level operating system functions. These system functions in RISC-V are invoked with the `ecall` instruction,
 where `ecall` stands for _environment call_.
 However, the concrete semantics of those functions is operating system
 dependent.
 Arguments to the system function are passed via the normal argument
-register `a0` and `a1`, where `a0` contains the function code.
-Explore [io.s](io.s) to print a integer value.
+register `a0` and `a7`, where `a7` contains the function code. Go through the 
+document [Ripes ecall](../ripes_doc/ecalls.md) to learn all the supported environment calls by Ripes.
+Explore the example [io.s](io.s) to print a variable's value and string.
 You can use this simple print function for `printf` debugging.
 
-### Assembler Directives
+## Assembler Directives
 
 Beside instructions in assembler format, an assembler also accepts
 so-called _assembler directives_. The code start is usually marked
@@ -111,14 +95,24 @@ This label can then be used as destination for a branch instruction.
 Also data can be addressed by using a label. See below some examples:
 
 ```asm
-.text
-main:
-la a1, hello
-loop: li, x3, 123
-... more code
+# io.s
+# Use ecall to print
+# = poor man's debugger
+
 .data
-hello:
-.asciiz "Hello"
+str: .string "hello, world!"
+
+.text
+li a0, 42
+li a7, 1
+ecall     # prints "42" to console
+
+li a7, 11
+ecall     # prints "*" to console (ASCII(42) = '*')
+
+la a0, str
+li a7, 4
+ecall     # Prints "hello, world!" to console
 ```
 
 Add a `main:` label to the start of your program and add following
@@ -129,9 +123,9 @@ j main
 ```
 
 What happens when you step through your code? What happens when
-you press _Run_?
+you press _Run_ 🤪?
 
-### A RISC Machine is also Called a Load/Store Architecture
+## A RISC Machine is also Called a Load/Store Architecture
 
 Operands for ALU instructions are always taken from registers and
 the result is also put into registers in a RISC machine.
@@ -153,27 +147,35 @@ Remember immediate values?
 After storing that value into the main memory also read it back
 into a register.
 
-### We can Say Hello World to the World
+## Final Questions
 
-As a final exercise we will say "Hello World".
+Write the assembly code to calculate the addition of two complex numbers 1+2i and 3+4i,
+and print its result into the console. The basic code is given in the following [complex_add.s](./complex_add.s),
+please complete the code and show your result in Ripes.
 
-A list of implemented `ecall` functions can be found in the
-[env. calls](https://github.com/kvakil/venus/wiki/Environmental-Calls)
-section in the
-[Venus documentation](https://github.com/kvakil/venus/wiki).
+```asm
+# complex_add.s
+# This example demonstrates an implementation of the addition of two
+# complex numbers a = 1 + 2i, b = 3 + 4i. And print the result to the console.
 
-You can print strings that are allocated in the static data segment.
-Explore [hello.s](hello.s).
+.data
+ar: .word 1 # Real part of a
+ai: .word 2 # Imag. part of a
+br: .word 3 # Real part of b
+bi: .word 4 # Imag part of b
+str: .string " + i* "
 
-### Final Questions
+.text
+main:
+    ...
+```
 
 To summarize the lab try to answer the following questions:
 
 * Can the computer execute an assembly instruction? 
 * How does the computer know that a bit pattern is an instruction?
 * How many bytes are used to store one instruction? 
-* How can the computer jump to a symbolic label, such as it
-occurs in the instruction `j main`? 
+* How can the computer jump to a symbolic label, such as it occurs in the instruction `j main`? 
 * Which registers are affected by a jump instruction?
  
   
